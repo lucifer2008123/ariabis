@@ -29,6 +29,37 @@ export function VendorCallMatrix({
   selectedCallId,
 }: VendorCallMatrixProps) {
   const [expandedCallId, setExpandedCallId] = useState<string | null>(null);
+  const [callingCallId, setCallingCallId] = useState<string | null>(null);
+  const [callNotice, setCallNotice] = useState<string | null>(null);
+
+  const handleCallVendorLive = async (call: IVendorCall) => {
+    const callId = String(call._id || (call as any).id);
+    setCallingCallId(callId);
+    setCallNotice(`Dialing ${call.vendor_name} (${call.vendor_phone}) from +13513453498...`);
+
+    try {
+      const res = await fetch("/api/v1/live-call", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          campaign_id: call.campaign_id,
+          phone_number: call.vendor_phone,
+          vendor_name: call.vendor_name,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setCallNotice(`📞 Live call placed to ${call.vendor_name}! Vapi Call ID: ${data.vapiCallId}`);
+      } else {
+        setCallNotice(`❌ Dial error: ${data.error || "Failed"}`);
+      }
+    } catch (e: any) {
+      setCallNotice(`❌ Network error: ${e.message}`);
+    } finally {
+      setCallingCallId(null);
+    }
+  };
 
   const getStatusBadge = (status: CallStatus) => {
     switch (status) {
@@ -116,6 +147,13 @@ export function VendorCallMatrix({
         </span>
       </div>
 
+      {callNotice && (
+        <div className="neo-box-sm bg-[#e0f2fe] p-3 text-black text-xs font-bold font-mono mb-4 flex items-center justify-between">
+          <span>{callNotice}</span>
+          <button onClick={() => setCallNotice(null)} className="neo-btn px-2 py-0.5 text-[10px] bg-white text-black">DISMISS</button>
+        </div>
+      )}
+
       {/* Cards List */}
       <div className="space-y-4">
         {calls.map((call, idx) => {
@@ -177,6 +215,16 @@ export function VendorCallMatrix({
 
                   {/* Action buttons */}
                   <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleCallVendorLive(call)}
+                      disabled={callingCallId === callId}
+                      className="neo-btn neo-btn-cyan px-2.5 py-1.5 text-xs text-black font-black flex items-center gap-1.5 shadow-[2px_2px_0px_0px_#000] disabled:opacity-50"
+                      title={`Place a live call to ${call.vendor_phone} via Vapi`}
+                    >
+                      <PhoneCall className="w-3.5 h-3.5" />
+                      {callingCallId === callId ? "DIALING..." : "CALL LIVE"}
+                    </button>
+
                     {call.evidence?.audio_url && onSelectCallForAudio && (
                       <button
                         onClick={() => onSelectCallForAudio(call)}
