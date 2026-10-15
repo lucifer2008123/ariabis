@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Play, Loader2, Sparkles, RefreshCw, Zap } from "lucide-react";
+import { Play, Loader2, Zap } from "lucide-react";
 
 interface SimulationControllerProps {
   campaignId: string;
@@ -43,20 +43,20 @@ export function SimulationController({
   };
 
   return (
-    <div className="bg-slate-900/90 border border-indigo-500/30 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-xl">
+    <div className="neo-box p-4 md:p-5 bg-[#fef9c3] flex flex-wrap items-center justify-between gap-4">
       <div className="flex items-center gap-3">
-        <div className="p-2 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/20">
-          <Zap className="w-5 h-5 text-indigo-400" />
+        <div className="w-10 h-10 rounded-xl bg-[#fde047] border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_#000]">
+          <Zap className="w-5 h-5 text-black fill-black" />
         </div>
         <div>
-          <h4 className="text-sm font-bold text-white flex items-center gap-2">
+          <h4 className="text-sm font-black text-black flex items-center gap-2 uppercase tracking-wide">
             Autonomous Voice AI Test Harness
-            <span className="px-2 py-0.5 text-[10px] bg-indigo-500/20 text-indigo-300 rounded font-mono">
-              Simulator
+            <span className="neo-badge bg-white text-black text-[10px]">
+              SIMULATOR
             </span>
           </h4>
-          <p className="text-xs text-slate-400">
-            {log || "Execute parallel SIP trunk negotiation with live BATNA broker & WhatsApp push"}
+          <p className="text-xs font-mono font-bold text-stone-700 mt-0.5">
+            {log || "Execute parallel SIP trunk negotiation with live BATNA broker & Telegram push"}
           </p>
         </div>
       </div>
@@ -65,17 +65,17 @@ export function SimulationController({
         <button
           onClick={runSimulation}
           disabled={isRunning}
-          className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold rounded-xl text-xs transition shadow-lg shadow-indigo-600/30 active:scale-95"
+          className="neo-btn neo-btn-green px-5 py-2.5 text-xs text-black font-black flex items-center gap-2 shadow-[4px_4px_0px_0px_#000] disabled:opacity-50"
         >
           {isRunning ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Running Parallel Calls...
+              <Loader2 className="w-4 h-4 animate-spin stroke-[2.5]" />
+              RUNNING PARALLEL CALLS...
             </>
           ) : (
             <>
-              <Play className="w-4 h-4 fill-white" />
-              Dispatch Parallel Calls (5 Lines)
+              <Play className="w-4 h-4 fill-black" />
+              DISPATCH PARALLEL CALLS (5 LINES)
             </>
           )}
         </button>

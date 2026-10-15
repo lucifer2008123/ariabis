@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
-import { Play, Pause, Volume2, ShieldCheck, Clock, RotateCcw } from "lucide-react";
+import { Play, Pause, Volume2, ShieldCheck, Clock, RotateCcw, CheckCircle } from "lucide-react";
 import { ITranscriptLine } from "@/lib/models/VendorCall";
 
 interface AudioProofPlayerProps {
@@ -99,25 +99,23 @@ export function AudioProofPlayer({
   };
 
   return (
-    <div className="bg-slate-900 border border-emerald-500/30 rounded-2xl p-6 shadow-xl relative overflow-hidden">
-      {/* Glow highlight header */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-indigo-500 to-purple-500" />
-
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
-            <ShieldCheck className="w-6 h-6" />
+    <div className="neo-box p-6 bg-white border-[3px] border-black">
+      {/* Tape Deck Header */}
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-5 pb-4 border-b-2 border-black">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-xl bg-[#bef264] border-2 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_#000]">
+            <ShieldCheck className="w-7 h-7 text-black stroke-[2.5]" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs uppercase tracking-wider font-bold text-emerald-400">
-                Verified Audio Evidence Locker
+            <div className="flex items-center gap-2 mb-1">
+              <span className="neo-badge bg-[#bef264] text-black text-xs font-black">
+                VERIFIED AUDIO EVIDENCE LOCKER
               </span>
-              <span className="px-2 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-300 rounded-full font-mono border border-emerald-500/30">
-                Grounded @ {formatSec(quoteTimestampSec)}
+              <span className="neo-badge bg-[#fde047] text-black text-[10px] font-mono">
+                GROUNDED @ {formatSec(quoteTimestampSec)}
               </span>
             </div>
-            <h3 className="text-lg font-bold text-white tracking-tight">
+            <h3 className="text-xl font-black text-black tracking-tight">
               {vendorName} — ₹{finalPrice.toLocaleString("en-IN")}
             </h3>
           </div>
@@ -126,23 +124,25 @@ export function AudioProofPlayer({
         {/* Action Button: Jump to Quote */}
         <button
           onClick={jumpToVerifiedQuote}
-          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold rounded-xl text-sm shadow-lg shadow-emerald-500/20 transition-all hover:scale-105 active:scale-95"
+          className="neo-btn neo-btn-green px-4 py-2.5 text-xs text-black font-black flex items-center gap-2 shadow-[4px_4px_0px_0px_#000]"
         >
-          <Play className="w-4 h-4 fill-white" />
-          Play Verified Quote ({formatSec(targetSeekTime)})
+          <Play className="w-4 h-4 fill-black" />
+          PLAY VERIFIED QUOTE ({formatSec(targetSeekTime)})
         </button>
       </div>
 
       {/* Verbatim Quote Highlight Box */}
-      <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-4 mb-5">
-        <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5 font-medium">
-          <span className="flex items-center gap-1.5 text-slate-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Spoke with: <strong className="text-white">{repName || "Sales Rep"}</strong>
+      <div className="neo-box-sm bg-[#fef08a] p-4 mb-5 text-black">
+        <div className="flex flex-wrap items-center justify-between text-xs font-black uppercase text-stone-700 mb-2">
+          <span className="flex items-center gap-1.5 text-black">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#bef264] border-2 border-black inline-block animate-pulse" />
+            SPOKE WITH: <span className="font-extrabold text-black">{repName || "Sales Rep"}</span>
           </span>
-          <span className="text-slate-500">Audio Grounding Accuracy: 99.4%</span>
+          <span className="neo-badge bg-white text-black text-[10px]">
+            GROUNDING ACCURACY: 99.4%
+          </span>
         </div>
-        <p className="text-slate-100 text-sm font-medium italic border-l-2 border-emerald-500 pl-3 py-1">
+        <p className="text-sm font-bold italic text-black border-l-4 border-black pl-3 py-1 leading-relaxed">
           &ldquo;{verbatimQuote}&rdquo;
         </p>
       </div>
@@ -150,21 +150,21 @@ export function AudioProofPlayer({
       {/* Hidden HTML5 Audio Element */}
       <audio ref={audioRef} src={audioUrl} preload="metadata" />
 
-      {/* Player Timeline & Controls */}
-      <div className="space-y-3">
-        <div className="relative">
+      {/* Cassette Mechanical Player Timeline & Controls */}
+      <div className="neo-box-sm bg-[#faf8f5] p-4 mb-5">
+        <div className="relative mb-3">
           <input
             type="range"
             min={0}
             max={duration || 142}
             value={currentTime}
             onChange={seekTo}
-            className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500 hover:accent-emerald-400"
+            className="w-full h-3 bg-stone-200 border-2 border-black rounded-lg appearance-none cursor-pointer accent-[#bef264]"
           />
           {/* Quote Marker Pin on Timeline */}
           {duration > 0 && (
             <div
-              className="absolute top-0 w-1.5 h-3 bg-amber-400 -translate-y-0.5 rounded shadow-sm shadow-amber-400 cursor-pointer"
+              className="absolute top-0 w-3 h-5 bg-[#fde047] border-2 border-black -translate-y-1 rounded shadow-[1px_1px_0px_0px_#000] cursor-pointer"
               style={{ left: `${(quoteTimestampSec / duration) * 100}%` }}
               title={`Quote Commitment at ${formatSec(quoteTimestampSec)}`}
               onClick={jumpToVerifiedQuote}
@@ -172,9 +172,10 @@ export function AudioProofPlayer({
           )}
         </div>
 
-        <div className="flex items-center justify-between text-xs text-slate-400 font-mono">
-          <span>{formatSec(currentTime)}</span>
-          <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between text-xs text-black font-mono font-black">
+          <span className="neo-badge bg-white text-black">{formatSec(currentTime)}</span>
+
+          <div className="flex items-center gap-3">
             <button
               onClick={() => {
                 if (audioRef.current) {
@@ -183,40 +184,43 @@ export function AudioProofPlayer({
                   setIsPlaying(true);
                 }
               }}
-              className="hover:text-white transition"
+              className="neo-btn px-3 py-1.5 bg-white hover:bg-stone-100 text-black shadow-[2px_2px_0px_0px_#000]"
               title="Restart"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
+
             <button
               onClick={togglePlay}
-              className="p-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full transition shadow-md"
+              className="neo-btn neo-btn-green w-10 h-10 rounded-full text-black flex items-center justify-center shadow-[3px_3px_0px_0px_#000]"
             >
               {isPlaying ? (
-                <Pause className="w-4 h-4 fill-white" />
+                <Pause className="w-5 h-5 fill-black" />
               ) : (
-                <Play className="w-4 h-4 fill-white translate-x-0.5" />
+                <Play className="w-5 h-5 fill-black translate-x-0.5" />
               )}
             </button>
-            <span className="flex items-center gap-1">
-              <Volume2 className="w-4 h-4" />
-              Stereo Master
+
+            <span className="neo-badge bg-[#c084fc] text-black flex items-center gap-1">
+              <Volume2 className="w-3.5 h-3.5" />
+              STEREO MASTER
             </span>
           </div>
-          <span>{formatSec(duration)}</span>
+
+          <span className="neo-badge bg-white text-black">{formatSec(duration)}</span>
         </div>
       </div>
 
       {/* Diarized Transcript Section */}
       {transcript.length > 0 && (
-        <div className="mt-5 pt-4 border-t border-slate-800/80">
-          <div className="flex items-center justify-between mb-2.5">
-            <span className="text-xs font-semibold uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5" /> Synchronized Diarized Transcript
+        <div className="pt-4 border-t-2 border-black">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-black uppercase text-black tracking-wider flex items-center gap-1.5">
+              <Clock className="w-4 h-4" /> SYNCHRONIZED DIARIZED TRANSCRIPT
             </span>
-            <span className="text-[11px] text-slate-500">Click any line to jump</span>
+            <span className="text-[11px] font-bold text-stone-600">Click any turn to jump</span>
           </div>
-          <div className="max-h-48 overflow-y-auto space-y-2 pr-1 font-mono text-xs">
+          <div className="max-h-56 overflow-y-auto space-y-2.5 pr-2 font-mono text-xs">
             {transcript.map((line, idx) => {
               const isActive = activeLineIdx === idx;
               const isQuoteCommit =
@@ -233,21 +237,27 @@ export function AudioProofPlayer({
                       setIsPlaying(true);
                     }
                   }}
-                  className={`p-2 rounded-lg cursor-pointer transition border text-left ${
+                  className={`p-3 rounded-lg cursor-pointer transition border-2 text-left ${
                     isActive
-                      ? "bg-indigo-950/80 border-indigo-500 text-white"
+                      ? "bg-[#fde047] border-black shadow-[4px_4px_0px_0px_#000]"
                       : isQuoteCommit
-                      ? "bg-emerald-950/40 border-emerald-500/50 text-emerald-200"
-                      : "bg-slate-950/30 border-slate-800 text-slate-400 hover:bg-slate-800/40"
+                      ? "bg-[#dcfce7] border-black shadow-[2px_2px_0px_0px_#000]"
+                      : "bg-white border-black hover:bg-stone-50 shadow-[2px_2px_0px_0px_#000]"
                   }`}
                 >
-                  <div className="flex items-center justify-between text-[10px] text-slate-400 mb-0.5">
-                    <span className="font-bold uppercase tracking-wider text-slate-300">
-                      {line.speaker === "agent" ? "🤖 Alex (AI Buyer)" : line.speaker === "system" ? "⚡ System Event" : `📞 ${repName || "Vendor Rep"}`}
+                  <div className="flex items-center justify-between text-[10px] mb-1">
+                    <span className="font-black uppercase tracking-wider text-black">
+                      {line.speaker === "agent" ? (
+                        <span className="neo-badge bg-[#38bdf8] text-black">🤖 Alex (AI Buyer)</span>
+                      ) : line.speaker === "system" ? (
+                        <span className="neo-badge bg-[#c084fc] text-black">⚡ System Broker</span>
+                      ) : (
+                        <span className="neo-badge bg-[#fde047] text-black">📞 {repName || "Vendor Rep"}</span>
+                      )}
                     </span>
-                    <span>{formatSec(line.start_time)}</span>
+                    <span className="font-mono font-bold text-stone-600">{formatSec(line.start_time)}</span>
                   </div>
-                  <p className="text-xs font-sans leading-relaxed">{line.text}</p>
+                  <p className="text-xs font-sans font-medium text-black leading-relaxed mt-1">{line.text}</p>
                 </div>
               );
             })}

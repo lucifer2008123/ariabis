@@ -3,31 +3,112 @@
 @tailwind utilities;
 
 :root {
-  --background: #020617;
-  --foreground: #f8fafc;
+  --background: #fbf8f3;
+  --foreground: #09090b;
 }
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background-color: var(--background);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-image: radial-gradient(#d4d0c8 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Neo-Brutalist Core Utility Styles */
+.neo-box {
+  background-color: #ffffff;
+  border: 3px solid #000000;
+  box-shadow: 5px 5px 0px 0px #000000;
+  border-radius: 12px;
+}
+
+.neo-box-sm {
+  background-color: #ffffff;
+  border: 2px solid #000000;
+  box-shadow: 3px 3px 0px 0px #000000;
+  border-radius: 8px;
+}
+
+.neo-box-lg {
+  background-color: #ffffff;
+  border: 3px solid #000000;
+  box-shadow: 7px 7px 0px 0px #000000;
+  border-radius: 16px;
+}
+
+.neo-btn {
+  background-color: #fde047;
+  color: #000000;
+  font-weight: 800;
+  border: 2px solid #000000;
+  box-shadow: 4px 4px 0px 0px #000000;
+  border-radius: 10px;
+  transition: all 0.1s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.neo-btn:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px #000000;
+}
+
+.neo-btn:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0px 0px #000000;
+}
+
+.neo-btn-green {
+  background-color: #bef264;
+}
+
+.neo-btn-cyan {
+  background-color: #38bdf8;
+}
+
+.neo-btn-coral {
+  background-color: #fda4af;
+}
+
+.neo-badge {
+  font-weight: 800;
+  text-transform: uppercase;
+  border: 2px solid #000000;
+  box-shadow: 2px 2px 0px 0px #000000;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+}
+
+.neo-input {
+  background-color: #ffffff;
+  border: 2px solid #000000;
+  box-shadow: 3px 3px 0px 0px #000000;
+  border-radius: 8px;
+  color: #000000;
+  outline: none;
+  transition: all 0.1s ease;
+}
+
+.neo-input:focus {
+  border-color: #000000;
+  box-shadow: 4px 4px 0px 0px #000000;
 }
 
 /* Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: #f1eee7;
+  border-left: 2px solid #000;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #000000;
+  border-radius: 0px;
 }

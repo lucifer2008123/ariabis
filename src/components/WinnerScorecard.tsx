@@ -1,11 +1,10 @@
 "use client";
 
 import React from "react";
-import { Trophy, CheckCircle2, MessageSquare, Sparkles, Send } from "lucide-react";
+import { Trophy, CheckCircle2, Sparkles, Send, ExternalLink, Headphones, BarChart3 } from "lucide-react";
 import { IVendorCall } from "@/lib/models/VendorCall";
 import { ICampaign } from "@/lib/models/Campaign";
 import { AudioProofPlayer } from "./AudioProofPlayer";
-import { formatWhatsAppEvidenceMessage } from "@/lib/whatsapp";
 import { formatTelegramEvidenceMessage } from "@/lib/telegram";
 
 interface WinnerScorecardProps {
@@ -44,49 +43,53 @@ export function WinnerScorecard({ campaign, winner, runnerUp }: WinnerScorecardP
   return (
     <div className="space-y-6">
       {/* Winner Hero Banner */}
-      <div className="bg-gradient-to-br from-indigo-950/80 via-slate-900 to-emerald-950/40 border border-emerald-500/40 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="p-3 bg-amber-500/10 text-amber-400 rounded-2xl border border-amber-500/20 shadow-lg shadow-amber-500/10">
-              <Trophy className="w-8 h-8" />
+      <div className="bg-[#bef264] border-[3px] border-black rounded-2xl p-6 md:p-8 shadow-[8px_8px_0px_0px_#000] relative overflow-hidden">
+        <div className="flex flex-wrap items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-[#fde047] border-[3px] border-black flex items-center justify-center shadow-[4px_4px_0px_0px_#000]">
+              <Trophy className="w-9 h-9 text-black" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  Deal Locked 🏆
+              <div className="flex items-center gap-2 mb-1">
+                <span className="neo-badge bg-white text-black text-xs font-black">
+                  DEAL LOCKED 🏆
                 </span>
-                <span className="text-xs text-slate-400 font-mono">
+                <span className="neo-badge bg-[#fde047] text-black text-xs font-mono font-black">
                   Score: {winner.scoring?.total_score || 94}/100
                 </span>
               </div>
-              <h2 className="text-2xl font-black text-white mt-1">
+              <h2 className="text-2xl md:text-4xl font-black text-black tracking-tight">
                 {winner.vendor_name}
               </h2>
             </div>
           </div>
 
           <div className="text-right">
-            <span className="text-xs uppercase text-slate-400 tracking-wider font-semibold block">
+            <span className="text-xs uppercase text-black tracking-wider font-black block">
               Negotiated All-In Price
             </span>
-            <div className="text-3xl font-black font-mono text-emerald-400">
+            <div className="text-3xl md:text-5xl font-black font-mono text-black">
               ₹{winner.pricing?.final_negotiated_price?.toLocaleString("en-IN")}
             </div>
-            <span className="text-xs text-slate-400">
-              Target: ₹{campaign.request.budget_target.toLocaleString("en-IN")} (Saved {savingsPct.toFixed(1)}% vs MSRP)
-            </span>
+            <div className="mt-1">
+              <span className="neo-badge bg-white text-black text-xs font-mono font-bold">
+                Target: ₹{campaign.request.budget_target.toLocaleString("en-IN")} (Saved {savingsPct.toFixed(1)}% vs MSRP)
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Highlighted Spec Checklist */}
-        <div className="mt-5 pt-4 border-t border-slate-800/80 flex flex-wrap items-center gap-2 text-xs">
-          <span className="text-slate-400 font-semibold mr-1">Verified Specifications:</span>
+        <div className="mt-6 pt-4 border-t-2 border-black flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-black font-black uppercase tracking-wider mr-2">
+            Verified Specifications:
+          </span>
           {winner.spec_verification?.verified_items?.map((item, idx) => (
             <span
               key={idx}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-950/70 text-emerald-300 border border-emerald-800/80 font-medium"
+              className="neo-badge bg-white text-black text-xs flex items-center gap-1.5 shadow-[2px_2px_0px_0px_#000]"
             >
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              <CheckCircle2 className="w-4 h-4 stroke-[2.5] text-black" />
               {item}
             </span>
           ))}
@@ -105,21 +108,21 @@ export function WinnerScorecard({ campaign, winner, runnerUp }: WinnerScorecardP
       />
 
       {/* Telegram Bot Dispatched Evidence Card */}
-      <div className="bg-slate-900 border border-sky-500/30 rounded-2xl p-6 shadow-xl">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-sky-500/10 text-sky-400 rounded-xl border border-sky-500/20">
-              <Send className="w-5 h-5 text-sky-400" />
+      <div className="neo-box p-6 bg-white border-[3px] border-black">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-4 pb-3 border-b-2 border-black">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#38bdf8] border-2 border-black flex items-center justify-center shadow-[2px_2px_0px_0px_#000]">
+              <Send className="w-5 h-5 text-black" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <h4 className="text-sm font-black text-black uppercase tracking-wider flex items-center gap-2">
                 Telegram Bot Evidence Card Dispatched
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 font-mono">
+                <span className="neo-badge bg-[#38bdf8] text-black text-[10px]">
                   @ariabis_bot
                 </span>
               </h4>
-              <p className="text-xs text-slate-400">
-                Delivered to Telegram Chat ID: <span className="font-mono text-slate-200">{(campaign as any).telegram_chat_id || "Registered User"}</span>
+              <p className="text-xs font-medium text-stone-600">
+                Delivered to Telegram Chat ID: <span className="font-mono font-bold text-black">{(campaign as any).telegram_chat_id || "Active Subscriber"}</span>
               </p>
             </div>
           </div>
@@ -127,30 +130,31 @@ export function WinnerScorecard({ campaign, winner, runnerUp }: WinnerScorecardP
             href="https://t.me/ariabis_bot"
             target="_blank"
             rel="noreferrer"
-            className="px-3 py-1 bg-sky-950/80 text-sky-300 text-xs font-semibold rounded-lg border border-sky-700 hover:bg-sky-900/60 transition flex items-center gap-1.5"
+            className="neo-btn neo-btn-cyan px-4 py-2 text-xs text-black font-black flex items-center gap-1.5 shadow-[3px_3px_0px_0px_#000]"
           >
-            Open in Telegram <Send className="w-3 h-3" />
+            OPEN IN TELEGRAM <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>
 
+        {/* Message Preview in Neo-Brutalist Frame */}
         <div
-          className="bg-slate-950/70 border border-sky-950 rounded-xl p-4 font-sans text-xs text-slate-200 whitespace-pre-line leading-relaxed border-l-4 border-l-sky-500 selection:bg-sky-900"
+          className="bg-[#faf8f5] border-2 border-black border-l-8 border-l-[#38bdf8] rounded-xl p-4 font-sans text-xs text-black whitespace-pre-line leading-relaxed shadow-[3px_3px_0px_0px_#000]"
           dangerouslySetInnerHTML={{ __html: telegramPreview }}
         />
 
         {/* Telegram Inline Keyboard Preview */}
-        <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
           <a
             href={campaign.portal_slug}
-            className="py-2 px-3 bg-sky-900/40 hover:bg-sky-900/60 text-sky-200 font-semibold rounded-lg border border-sky-700/60 text-center transition flex items-center justify-center gap-1.5"
+            className="neo-btn bg-[#e0f2fe] hover:bg-[#bae6fd] py-2.5 px-3 text-black font-black flex items-center justify-center gap-2 shadow-[3px_3px_0px_0px_#000]"
           >
-            🎧 Listen to Audio Proof
+            <Headphones className="w-4 h-4" /> LISTEN TO AUDIO PROOF
           </a>
           <a
             href={campaign.portal_slug}
-            className="py-2 px-3 bg-sky-900/40 hover:bg-sky-900/60 text-sky-200 font-semibold rounded-lg border border-sky-700/60 text-center transition flex items-center justify-center gap-1.5"
+            className="neo-btn bg-[#fef08a] hover:bg-[#fde047] py-2.5 px-3 text-black font-black flex items-center justify-center gap-2 shadow-[3px_3px_0px_0px_#000]"
           >
-            📊 View Live Deal Room
+            <BarChart3 className="w-4 h-4" /> VIEW LIVE DEAL ROOM
           </a>
         </div>
       </div>

@@ -33,3 +33,6 @@ yarn-error.log*
 .DS_Store
 *.pem
 Thumbs.db
+
+# AI agent skills
+.skills/

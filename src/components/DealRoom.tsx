@@ -8,7 +8,7 @@ import { VendorCallMatrix } from "./VendorCallMatrix";
 import { WinnerScorecard } from "./WinnerScorecard";
 import { AudioProofPlayer } from "./AudioProofPlayer";
 import { SimulationController } from "./SimulationController";
-import { ShieldCheck, ArrowLeft, RefreshCw, Radio, Sparkles } from "lucide-react";
+import { ArrowLeft, Radio, Sparkles, SlidersHorizontal, ShieldCheck, X } from "lucide-react";
 import Link from "next/link";
 
 interface DealRoomProps {
@@ -96,53 +96,56 @@ export function DealRoom({ initialCampaign, initialCalls }: DealRoomProps) {
     }));
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-4 md:p-8">
+    <div className="min-h-screen py-8 px-4 md:px-8">
       <div className="max-w-6xl mx-auto space-y-6">
-        {/* Navigation & Header */}
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/"
-              className="p-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl border border-slate-800 transition"
-              title="Back to Intake"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-xs text-indigo-400 font-bold">
-                  {campaign.campaign_id}
-                </span>
-                <span className="text-slate-600">•</span>
-                <span
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wider ${
-                    campaign.status === "COMPLETED"
-                      ? "bg-emerald-950/80 text-emerald-300 border border-emerald-600/40"
-                      : "bg-indigo-950/80 text-indigo-300 border border-indigo-600/40 animate-pulse"
-                  }`}
-                >
-                  <Radio className="w-3 h-3 text-current" />
-                  {campaign.status}
-                </span>
-                {sseConnected && (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] bg-slate-900 text-slate-400 border border-slate-800">
-                    SSE Live
+        {/* Navigation & Header Card */}
+        <div className="neo-box p-5 md:p-6 bg-white">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <Link
+                href="/"
+                className="neo-btn px-3 py-2 bg-white hover:bg-stone-100 text-black text-sm"
+                title="Back to Procurement Intake"
+              >
+                <ArrowLeft className="w-5 h-5 mr-1" /> BACK
+              </Link>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="neo-badge bg-[#38bdf8] text-black">
+                    {campaign.campaign_id}
                   </span>
-                )}
+                  <span
+                    className={`neo-badge ${
+                      campaign.status === "COMPLETED"
+                        ? "bg-[#bef264] text-black"
+                        : "bg-[#fde047] text-black animate-pulse"
+                    }`}
+                  >
+                    <Radio className="w-3 h-3 inline mr-1" />
+                    {campaign.status === "COMPLETED" ? "DEAL LOCKED 🏆" : "NEGOTIATING LIVE ⚡"}
+                  </span>
+                  {sseConnected && (
+                    <span className="neo-badge bg-[#c084fc] text-black">
+                      SSE STREAM LIVE
+                    </span>
+                  )}
+                </div>
+                <h1 className="text-2xl md:text-3xl font-black text-black mt-2 tracking-tight">
+                  {campaign.request.product}
+                </h1>
               </div>
-              <h1 className="text-2xl font-black text-white mt-0.5">
-                {campaign.request.product}
-              </h1>
             </div>
-          </div>
 
-          <div className="flex items-center gap-3">
-            <div className="text-right text-xs">
-              <span className="text-slate-500 block">Target / Max Ceiling</span>
-              <span className="font-mono font-bold text-slate-200">
-                ₹{campaign.request.budget_target.toLocaleString("en-IN")} / ₹
-                {campaign.request.budget_max.toLocaleString("en-IN")}
-              </span>
+            <div className="flex items-center gap-3">
+              <div className="neo-box-sm bg-[#fef08a] px-4 py-2 text-right">
+                <span className="text-[10px] font-black uppercase text-stone-700 block tracking-wider">
+                  Target / Walk-away Max
+                </span>
+                <span className="font-mono font-black text-black text-base md:text-lg">
+                  ₹{campaign.request.budget_target.toLocaleString("en-IN")} / ₹
+                  {campaign.request.budget_max.toLocaleString("en-IN")}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -151,8 +154,7 @@ export function DealRoom({ initialCampaign, initialCalls }: DealRoomProps) {
         <SimulationController
           campaignId={campaignId}
           onSimulationComplete={() => {
-            fetch(`/api/stream/${campaignId}`)
-              .catch(() => {});
+            fetch(`/api/stream/${campaignId}`).catch(() => {});
           }}
         />
 
@@ -166,16 +168,19 @@ export function DealRoom({ initialCampaign, initialCalls }: DealRoomProps) {
 
         {/* If a specific call was clicked for audio verification */}
         {selectedCallForAudio && selectedCallForAudio.evidence && (
-          <div className="animate-in fade-in slide-in-from-top-4 duration-300">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                Inspecting Call Audio Evidence
-              </span>
+          <div className="neo-box p-4 md:p-6 bg-[#fef9c3] border-[3px] border-black">
+            <div className="flex items-center justify-between mb-4 pb-3 border-b-2 border-black">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-black" />
+                <span className="text-xs font-black uppercase tracking-wider text-black">
+                  INSPECTING AUDIO EVIDENCE: {selectedCallForAudio.vendor_name}
+                </span>
+              </div>
               <button
                 onClick={() => setSelectedCallForAudio(null)}
-                className="text-xs text-slate-500 hover:text-white"
+                className="neo-btn px-2.5 py-1 text-xs bg-white hover:bg-stone-200 text-black font-black flex items-center gap-1"
               >
-                Close Inspector
+                <X className="w-3.5 h-3.5" /> CLOSE INSPECTOR
               </button>
             </div>
             <AudioProofPlayer

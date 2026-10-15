@@ -11,11 +11,11 @@ import {
   Sparkles,
   ShieldAlert,
   Loader2,
-  DollarSign,
   MapPin,
-  Phone,
   CheckCircle,
   ExternalLink,
+  Target,
+  AlertTriangle,
 } from "lucide-react";
 
 export function IntakeForm() {
@@ -156,24 +156,24 @@ export function IntakeForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="p-4 rounded-xl bg-rose-950/80 border border-rose-500/50 text-rose-200 text-sm flex items-center gap-3">
-          <ShieldAlert className="w-5 h-5 text-rose-400 shrink-0" />
+        <div className="p-4 bg-[#fda4af] border-3 border-black shadow-[4px_4px_0px_#000] rounded-xl text-black font-bold text-sm flex items-center gap-3">
+          <ShieldAlert className="w-5 h-5 text-black shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       {/* Preset Banner */}
-      <div className="flex items-center justify-between p-3.5 rounded-xl bg-indigo-950/40 border border-indigo-500/30">
+      <div className="flex flex-wrap items-center justify-between p-3.5 bg-[#fef08a] border-2 border-black shadow-[3px_3px_0px_#000] rounded-xl gap-2">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-indigo-400" />
-          <span className="text-xs text-indigo-200 font-medium">
-            Demo Blueprint Spec: <strong>Commercial Espresso Machine (₹1.85L Target)</strong>
+          <Sparkles className="w-4 h-4 text-black" />
+          <span className="text-xs font-mono font-bold text-black">
+            Blueprint Benchmark: <strong>Commercial Espresso Machine (₹1.85L Target)</strong>
           </span>
         </div>
         <button
           type="button"
           onClick={loadDemoPreset}
-          className="text-xs text-indigo-400 hover:text-white font-semibold underline underline-offset-4"
+          className="neo-btn bg-white text-[11px] px-3 py-1 font-black uppercase"
         >
           Load Blueprint Preset
         </button>
@@ -181,7 +181,7 @@ export function IntakeForm() {
 
       {/* Product Name with Voice/Text Input */}
       <div>
-        <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+        <label className="block text-xs font-black uppercase tracking-wider text-black mb-2">
           Product / Equipment Required
         </label>
         <div className="relative flex items-center">
@@ -191,19 +191,20 @@ export function IntakeForm() {
             value={productName}
             onChange={(e) => setProductName(e.target.value)}
             placeholder="e.g. Commercial Espresso Machine, CNC Mill, Industrial Air Compressor"
-            className="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl px-4 py-3 text-white placeholder-slate-500 pr-12 text-sm transition"
+            className="w-full neo-input px-4 py-3 text-black font-bold placeholder:text-slate-400 pr-14 text-sm"
           />
           <button
             type="button"
             onClick={toggleVoiceRecording}
-            className={`absolute right-2.5 p-2 rounded-lg transition ${
+            className={`absolute right-2 px-2.5 py-1.5 rounded-lg border-2 border-black transition font-bold text-xs flex items-center gap-1 ${
               isRecording
-                ? "bg-rose-600 text-white animate-pulse"
-                : "text-slate-400 hover:text-white hover:bg-slate-800"
+                ? "bg-rose-500 text-white animate-pulse"
+                : "bg-[#bef264] text-black shadow-[2px_2px_0px_#000] hover:translate-x-[1px] hover:translate-y-[1px]"
             }`}
             title="Voice Dictation"
           >
             {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            <span className="hidden sm:inline">{isRecording ? "Listening" : "Voice"}</span>
           </button>
         </div>
       </div>
@@ -211,34 +212,34 @@ export function IntakeForm() {
       {/* Dynamic Spec Chip-List */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-300">
+          <label className="text-xs font-black uppercase tracking-wider text-black">
             Mandatory Specifications (Strict Audit Protocol)
           </label>
-          <span className="text-[11px] text-slate-500">
-            Vendors missing any spec will be disqualified
+          <span className="text-[11px] font-mono text-slate-600 font-bold">
+            Missing spec = Disqualified (Score 0)
           </span>
         </div>
 
-        <div className="flex flex-wrap gap-2 p-3 bg-slate-900/60 border border-slate-800 rounded-xl min-h-[52px] mb-3">
+        <div className="flex flex-wrap gap-2 p-3 bg-[#f1eee7] border-2 border-black rounded-xl min-h-[56px] mb-3">
           {mandatorySpecs.map((spec) => (
             <span
               key={spec}
-              className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-950/70 border border-indigo-700/60 text-indigo-200 rounded-lg text-xs font-medium"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#bef264] border-2 border-black shadow-[2px_2px_0px_#000] text-black rounded-lg text-xs font-black uppercase tracking-tight"
             >
-              <CheckCircle className="w-3.5 h-3.5 text-indigo-400" />
+              <CheckCircle className="w-3.5 h-3.5 text-black" />
               {spec}
               <button
                 type="button"
                 onClick={() => removeSpec(spec)}
-                className="hover:text-white ml-1 text-slate-400"
+                className="hover:bg-black hover:text-white rounded-full p-0.5 ml-1 transition"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-3 h-3" />
               </button>
             </span>
           ))}
 
           {mandatorySpecs.length === 0 && (
-            <span className="text-xs text-slate-500 self-center">
+            <span className="text-xs font-mono font-bold text-slate-500 self-center">
               No mandatory specifications added yet.
             </span>
           )}
@@ -256,26 +257,26 @@ export function IntakeForm() {
               }
             }}
             placeholder="Type a required spec (e.g. Rotary pump, 220V 1-phase) and press Enter"
-            className="flex-1 bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-xl px-4 py-2 text-xs text-white placeholder-slate-500"
+            className="flex-1 neo-input px-4 py-2 text-xs text-black font-semibold placeholder:text-slate-400"
           />
           <button
             type="button"
             onClick={addSpec}
-            className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-xl border border-slate-700 transition flex items-center gap-1"
+            className="neo-btn bg-[#38bdf8] px-4 py-2 text-xs font-black uppercase flex items-center gap-1"
           >
-            <Plus className="w-4 h-4" /> Add
+            <Plus className="w-4 h-4" /> Add Spec
           </button>
         </div>
       </div>
 
       {/* Dual Budget Sliders */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 p-5 bg-[#fef9c3] border-3 border-black shadow-[4px_4px_0px_#000] rounded-xl">
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
-              Target Budget
+            <span className="text-xs font-black uppercase tracking-wider text-black flex items-center gap-1.5">
+              <Target className="w-4 h-4" /> Target Budget
             </span>
-            <span className="font-mono text-sm font-bold text-emerald-400">
+            <span className="font-mono text-base font-black text-black bg-[#bef264] px-2 py-0.5 border border-black rounded shadow-[2px_2px_0px_#000]">
               ₹{budgetTarget.toLocaleString("en-IN")}
             </span>
           </div>
@@ -286,19 +287,19 @@ export function IntakeForm() {
             step={5000}
             value={budgetTarget}
             onChange={(e) => setBudgetTarget(Number(e.target.value))}
-            className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+            className="w-full h-3 bg-black rounded-lg appearance-none cursor-pointer accent-[#bef264]"
           />
-          <span className="text-[10px] text-slate-500 block mt-1">
-            Voice Agent attempts to anchor at or below this target
+          <span className="text-[10px] font-mono font-bold text-slate-700 block mt-1">
+            Voice Agent anchors negotiation at or below this target
           </span>
         </div>
 
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
-              Walk-Away Ceiling (Strict Max)
+            <span className="text-xs font-black uppercase tracking-wider text-black flex items-center gap-1.5">
+              <AlertTriangle className="w-4 h-4 text-rose-600" /> Walk-Away Ceiling
             </span>
-            <span className="font-mono text-sm font-bold text-amber-400">
+            <span className="font-mono text-base font-black text-black bg-[#fda4af] px-2 py-0.5 border border-black rounded shadow-[2px_2px_0px_#000]">
               ₹{budgetMax.toLocaleString("en-IN")}
             </span>
           </div>
@@ -309,19 +310,19 @@ export function IntakeForm() {
             step={5000}
             value={budgetMax}
             onChange={(e) => setBudgetMax(Number(e.target.value))}
-            className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
+            className="w-full h-3 bg-black rounded-lg appearance-none cursor-pointer accent-[#f43f5e]"
           />
-          <span className="text-[10px] text-slate-500 block mt-1">
-            Agent immediately walks away if vendor exceeds this limit
+          <span className="text-[10px] font-mono font-bold text-slate-700 block mt-1">
+            Strict maximum: Agent rejects deal if vendor exceeds this limit
           </span>
         </div>
       </div>
 
-      {/* Delivery & Alert Configuration */}
+      {/* Location & Telegram Alert Configuration */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5 flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-indigo-400" />
+          <label className="block text-xs font-black uppercase tracking-wider text-black mb-1.5 flex items-center gap-1.5">
+            <MapPin className="w-3.5 h-3.5" />
             Vendor Search Location
           </label>
           <input
@@ -329,21 +330,21 @@ export function IntakeForm() {
             required
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white"
+            className="w-full neo-input px-4 py-2.5 text-xs text-black font-bold"
           />
         </div>
 
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-              <Send className="w-3.5 h-3.5 text-sky-400" />
+            <label className="text-xs font-black uppercase tracking-wider text-black flex items-center gap-1.5">
+              <Send className="w-3.5 h-3.5 text-sky-600" />
               Telegram Alerts (Chat ID)
             </label>
             <a
               href="https://t.me/ariabis_bot"
               target="_blank"
               rel="noreferrer"
-              className="text-[11px] text-sky-400 hover:text-sky-300 flex items-center gap-1 font-semibold"
+              className="text-[11px] font-mono font-black text-sky-700 hover:text-black flex items-center gap-1 underline underline-offset-2"
             >
               Start @ariabis_bot <ExternalLink className="w-3 h-3" />
             </a>
@@ -352,27 +353,27 @@ export function IntakeForm() {
             type="text"
             value={telegramChatId}
             onChange={(e) => setTelegramChatId(e.target.value)}
-            placeholder="e.g. 123456789 (Open @ariabis_bot to get ID)"
-            className="w-full bg-slate-900 border border-slate-800 focus:border-sky-500 rounded-xl px-4 py-2.5 text-xs text-white font-mono placeholder:text-slate-600"
+            placeholder="e.g. 123456789 (Open bot to get your ID)"
+            className="w-full neo-input px-4 py-2.5 text-xs text-black font-mono font-bold placeholder:text-slate-400"
           />
         </div>
       </div>
 
-      {/* Submit Button */}
+      {/* Primary Submit Button */}
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full py-4 px-6 bg-gradient-to-r from-indigo-600 via-indigo-500 to-emerald-600 hover:from-indigo-500 hover:to-emerald-500 disabled:opacity-50 text-white font-bold rounded-xl shadow-xl shadow-indigo-600/25 flex items-center justify-center gap-2 text-sm transition-all hover:scale-[1.01] active:scale-[0.99]"
+        className="w-full neo-btn neo-btn-green py-4 px-6 text-sm md:text-base font-black uppercase tracking-wider shadow-[6px_6px_0px_#000] hover:shadow-[3px_3px_0px_#000] active:shadow-none"
       >
         {isSubmitting ? (
           <>
-            <Loader2 className="w-5 h-5 animate-spin" />
-            Initializing Autonomous Procurement Engine...
+            <Loader2 className="w-5 h-5 animate-spin mr-2" />
+            DISPATCHING AUTONOMOUS PROCUREMENT ENGINE...
           </>
         ) : (
           <>
-            <Send className="w-4 h-4 fill-white" />
-            Launch Autonomous Voice AI Procurement Campaign
+            <Send className="w-5 h-5 mr-2" />
+            LAUNCH AUTONOMOUS VOICE AI PROCUREMENT CAMPAIGN
           </>
         )}
       </button>
