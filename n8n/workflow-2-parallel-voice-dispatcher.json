@@ -1,0 +1,152 @@
+{
+  "name": "WF2: Parallel Voice Agent Dispatcher",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "node-wf2-trigger",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "batchSize": 5,
+        "options": {}
+      },
+      "id": "node-split-batches",
+      "name": "Split In Batches (Max 5)",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [320, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\nconst campaign = item.campaign || {};\nconst prompt = `# SYSTEM PROMPT FOR VAPI / RETELL VOICE AGENT (INJECTED DYNAMICALLY BY N8N WF-2)\nYou are Alex, a sharp, polite procurement buyer calling on behalf of ${campaign.user_name || 'Allen'}.\n\nOBJECTIVE:\nObtain a verified quote and negotiate the best all-in price for: ${campaign.product_name || 'Equipment'}.\n\nMANDATORY SPECIFICATIONS:\n${JSON.stringify(campaign.mandatory_specs || [])}\n\nBUDGET TARGET: ₹${campaign.budget_target} | WALK-AWAY CEILING: ₹${campaign.budget_max} | MARKET BASELINE: ₹${campaign.online_low_price || 198000}\n\nCONVERSATION RULES:\n1. Keep every turn under 2 sentences (max 35 words). Never monologue. Use natural pacing.\n2. NEVER reveal your walk-away ceiling (₹${campaign.budget_max}) or admit you are an AI unless directly asked.\n3. Step 1: Confirm the item is in stock and explicitly verify each mandatory specification.\n4. Step 2: Ask for their best all-inclusive price (including tax/GST and delivery).\n5. Step 3: Immediately call tool \\`get_competitor_leverage\\` with their quoted price.\n6. Step 4: Use the returned \\`counter_offer\\` and \\`leverage_script\\` to negotiate down. If they cannot move on price, ask for free delivery or extended warranty.\n7. Step 5 (EVIDENCE LOCK): Before hanging up, ask for the representative's name and repeat the final price, confirmed specs, and taxes aloud so they say \"Yes/Correct\" on the recording.`;\n\nreturn {\n  json: {\n    ...item,\n    rendered_prompt: prompt\n  }\n};"
+      },
+      "id": "node-inject-prompt",
+      "name": "Inject Dynamic Prompt + Spec JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [540, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vapi.ai/call/phone",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.VAPI_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"phoneNumberId\": \"{{ $env.VAPI_PHONE_NUMBER_ID }}\",\n  \"customer\": {\n    \"number\": \"{{ $json.vendor_phone }}\",\n    \"name\": \"{{ $json.vendor_name }}\"\n  },\n  \"assistant\": {\n    \"name\": \"Alex - HaggleOS {{ $json.campaign_id }}\",\n    \"model\": {\n      \"provider\": \"openai\",\n      \"model\": \"gpt-4o\",\n      \"messages\": [{ \"role\": \"system\", \"content\": \"{{ $json.rendered_prompt }}\" }]\n    }\n  }\n}",
+        "options": {
+          "onError": "continueErrorOutput"
+        }
+      },
+      "id": "node-post-vapi",
+      "name": "POST Vapi /call/phone",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [760, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.error !== undefined }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "node-check-error",
+      "name": "Check Vendor Line Busy / Error",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [980, 300]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "collection": "vendor_calls",
+        "updateKey": "vendor_phone",
+        "fields": "call_status"
+      },
+      "id": "node-mark-busy",
+      "name": "Log line_busy in MongoDB",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [1200, 420]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Split In Batches (Max 5)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split In Batches (Max 5)": {
+      "main": [
+        [
+          {
+            "node": "Inject Dynamic Prompt + Spec JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inject Dynamic Prompt + Spec JSON": {
+      "main": [
+        [
+          {
+            "node": "POST Vapi /call/phone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST Vapi /call/phone": {
+      "main": [
+        [
+          {
+            "node": "Check Vendor Line Busy / Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Vendor Line Busy / Error": {
+      "main": [
+        [
+          {
+            "node": "Log line_busy in MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  }
+}

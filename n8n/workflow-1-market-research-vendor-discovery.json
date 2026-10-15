@@ -1,0 +1,161 @@
+{
+  "name": "WF1: Market Research & Vendor Discovery",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "api/v1/campaign-start",
+        "options": {}
+      },
+      "id": "node-webhook-wf1",
+      "name": "Webhook: Ingest Campaign",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"api_key\": \"{{ $env.TAVILY_API_KEY }}\",\n  \"query\": \"best wholesale or retail price for {{ $json.body.product_name }} {{ $json.body.specs_required.join(' ') }}\",\n  \"search_depth\": \"advanced\",\n  \"include_answer\": true\n}",
+        "options": {
+          "onError": "continueErrorOutput"
+        }
+      },
+      "id": "node-tavily-price",
+      "name": "Tavily Price Benchmark",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [320, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://places.googleapis.com/v1/places:searchText",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Goog-Api-Key",
+              "value": "={{ $env.GOOGLE_PLACES_API_KEY }}"
+            },
+            {
+              "name": "X-Goog-FieldMask",
+              "value": "places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.internationalPhoneNumber,places.rating,places.userRatingCount,places.regularOpeningHours"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"textQuery\": \"{{ $('Webhook: Ingest Campaign').item.json.body.product_name }} supplier dealer near {{ $('Webhook: Ingest Campaign').item.json.body.location || 'Bangalore' }}\"\n}",
+        "options": {
+          "onError": "continueErrorOutput"
+        }
+      },
+      "id": "node-google-places",
+      "name": "Google Places Vendor Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [540, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filter vendors: Rating >= 3.8 and open phone numbers\nconst rawPlaces = $input.first().json.places || [];\nconst campaign = $('Webhook: Ingest Campaign').first().json.body;\n\nconst filtered = rawPlaces\n  .filter(p => (p.rating || 0) >= 3.8 && (p.internationalPhoneNumber || p.nationalPhoneNumber))\n  .slice(0, 5)\n  .map((p, idx) => ({\n    campaign_id: campaign.campaign_id || `CMP-${Date.now()}`,\n    vendor_name: p.displayName?.text || `Supplier ${idx + 1}`,\n    vendor_phone: (p.internationalPhoneNumber || p.nationalPhoneNumber || '').replace(/\\s+/g, ''),\n    vendor_rating: p.rating || 4.0,\n    vendor_reviews_count: p.userRatingCount || 10,\n    call_status: 'QUEUED'\n  }));\n\nreturn filtered.map(item => ({ json: item }));"
+      },
+      "id": "node-filter-vendors",
+      "name": "Filter Vendors (>=3.8 Rating)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [760, 300]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "campaigns",
+        "fields": "campaign_id,user_phone,status,request,market_research,portal_slug"
+      },
+      "id": "node-mongo-seed-campaign",
+      "name": "MongoDB Save Master Campaign",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [980, 200]
+    },
+    {
+      "parameters": {
+        "workflowId": "WF2_DISPATCHER_ID",
+        "options": {}
+      },
+      "id": "node-trigger-wf2",
+      "name": "Trigger WF-2 Dispatcher",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [1200, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: Ingest Campaign": {
+      "main": [
+        [
+          {
+            "node": "Tavily Price Benchmark",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tavily Price Benchmark": {
+      "main": [
+        [
+          {
+            "node": "Google Places Vendor Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Places Vendor Search": {
+      "main": [
+        [
+          {
+            "node": "Filter Vendors (>=3.8 Rating)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Vendors (>=3.8 Rating)": {
+      "main": [
+        [
+          {
+            "node": "MongoDB Save Master Campaign",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Trigger WF-2 Dispatcher",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

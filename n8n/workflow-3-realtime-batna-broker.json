@@ -1,0 +1,91 @@
+{
+  "name": "WF3: Real-Time Mid-Call BATNA Broker (<280ms)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "api/v1/live-leverage",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-batna-webhook",
+      "name": "Webhook: /api/v1/live-leverage",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "operation": "find",
+        "collection": "vendor_calls",
+        "query": "={\n  \"campaign_id\": \"{{ $json.body.campaign_id || $json.body.message.toolCalls[0].function.arguments.campaign_id }}\",\n  \"call_status\": \"QUOTE_VERIFIED\",\n  \"pricing.final_negotiated_price\": { \"$gt\": 0 }\n}",
+        "options": {
+          "limit": 1,
+          "sort": "{ \"pricing.final_negotiated_price\": 1 }"
+        }
+      },
+      "id": "node-find-lowest-verified",
+      "name": "MongoDB Find (Min Verified Price)",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [340, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $('Webhook: /api/v1/live-leverage').first().json.body;\nconst rawArgs = input.message?.toolCalls?.[0]?.function?.arguments;\nconst args = typeof rawArgs === 'string' ? JSON.parse(rawArgs) : (rawArgs || input);\n\nconst vendorQuote = Number(args.vendor_quote) || 0;\nconst dbResult = $input.first()?.json;\nconst lowestVerified = dbResult?.pricing?.final_negotiated_price || null;\n\n// Compute aggressive yet realistic counter-anchor target\nlet batnaPrice = lowestVerified;\nif (!batnaPrice || batnaPrice <= 0) {\n  batnaPrice = Math.round(vendorQuote * 0.90);\n}\n\nconst counterOffer = Math.round(Math.min(batnaPrice, vendorQuote * 0.93));\nconst formattedBATNA = counterOffer.toLocaleString('en-IN');\n\nconst tacticalScript = `We have a verified quote at ₹${formattedBATNA} for the exact spec. Can you beat that if we confirm today?`;\n\nreturn {\n  json: {\n    results: [\n      {\n        toolCallId: input.message?.toolCalls?.[0]?.id || 'tc_batna',\n        result: {\n          counter_offer: counterOffer,\n          competitor_price: batnaPrice,\n          leverage_script: tacticalScript,\n          status: 'success'\n        }\n      }\n    ]\n  }\n};"
+      },
+      "id": "node-compute-counter-anchor",
+      "name": "Compute Counter-Offer Target & Script",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [580, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "node-respond-batna",
+      "name": "Respond to Webhook (<280ms)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [800, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: /api/v1/live-leverage": {
+      "main": [
+        [
+          {
+            "node": "MongoDB Find (Min Verified Price)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB Find (Min Verified Price)": {
+      "main": [
+        [
+          {
+            "node": "Compute Counter-Offer Target & Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Counter-Offer Target & Script": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook (<280ms)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

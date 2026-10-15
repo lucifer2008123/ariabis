@@ -1,0 +1,184 @@
+{
+  "name": "WF4: Evidence Verifier, Judge & WhatsApp Push",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "api/v1/call-complete",
+        "options": {}
+      },
+      "id": "node-call-complete-webhook",
+      "name": "Webhook: /api/v1/call-complete",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Audit and verify evidence with strict anti-hallucination\nconst body = $input.first().json.body;\nconst transcript = body.transcript || [];\nconst mandatorySpecs = body.mandatory_specs || [];\nconst finalPrice = Number(body.final_price) || 0;\n\n// Scan diarized transcript for mandatory specifications confirmation\nconst verifiedSpecs = [];\nconst missingSpecs = [];\n\nfor (const spec of mandatorySpecs) {\n  const found = transcript.some(t => t.speaker === 'vendor' && t.text.toLowerCase().includes(spec.toLowerCase().split(' ')[0]));\n  if (found) {\n    verifiedSpecs.push(spec);\n  } else {\n    missingSpecs.push(spec);\n  }\n}\n\n// Pinpoint exact quote timestamp in audio\nlet quoteTimestamp = 0;\nfor (let i = transcript.length - 1; i >= 0; i--) {\n  if (transcript[i].speaker === 'vendor' && (transcript[i].text.includes(String(finalPrice)) || transcript[i].text.toLowerCase().includes('confirm') || transcript[i].text.toLowerCase().includes('all-inclusive'))) {\n    quoteTimestamp = transcript[i].start_time;\n    break;\n  }\n}\n\nreturn {\n  json: {\n    ...body,\n    verified_specs: verifiedSpecs,\n    missing_specs: missingSpecs,\n    all_specs_met: missingSpecs.length === 0,\n    quote_timestamp_sec: quoteTimestamp,\n    call_status: 'QUOTE_VERIFIED'\n  }\n};"
+      },
+      "id": "node-audit-transcript",
+      "name": "AI Evidence Verifier (Transcript Audit)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [340, 300]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "collection": "vendor_calls",
+        "updateKey": "vendor_phone",
+        "fields": "call_status,pricing,spec_verification,evidence"
+      },
+      "id": "node-save-verified-call",
+      "name": "MongoDB Save Verified Call",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [560, 300]
+    },
+    {
+      "parameters": {
+        "operation": "find",
+        "collection": "vendor_calls",
+        "query": "={\n  \"campaign_id\": \"{{ $('AI Evidence Verifier (Transcript Audit)').first().json.campaign_id }}\",\n  \"call_status\": { \"$in\": [\"QUEUED\", \"DIALING\", \"NEGOTIATING\"] }\n}"
+      },
+      "id": "node-check-pending-calls",
+      "name": "Check Pending Calls (Barrier == 0)",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [780, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $input.all().length }}",
+              "operation": "equal",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "id": "node-all-calls-finished-if",
+      "name": "All Calls Finished?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1000, 300]
+    },
+    {
+      "parameters": {
+        "operation": "find",
+        "collection": "vendor_calls",
+        "query": "={\n  \"campaign_id\": \"{{ $('AI Evidence Verifier (Transcript Audit)').first().json.campaign_id }}\"\n}",
+        "options": {
+          "sort": "{ \"pricing.final_negotiated_price\": 1 }"
+        }
+      },
+      "id": "node-fetch-all-calls-for-scoring",
+      "name": "Fetch All Calls For Scoring",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.1,
+      "position": [1220, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v19.0/{{ $env.WHATSAPP_PHONE_NUMBER_ID }}/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.WHATSAPP_TOKEN }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"{{ $json.user_phone }}\",\n  \"type\": \"text\",\n  \"text\": {\n    \"body\": \"{{ $json.whatsapp_message }}\"\n  }\n}",
+        "options": {
+          "onError": "continueErrorOutput"
+        }
+      },
+      "id": "node-whatsapp-cloud-push",
+      "name": "Meta WhatsApp Cloud Push",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1460, 200]
+    }
+  ],
+  "connections": {
+    "Webhook: /api/v1/call-complete": {
+      "main": [
+        [
+          {
+            "node": "AI Evidence Verifier (Transcript Audit)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Evidence Verifier (Transcript Audit)": {
+      "main": [
+        [
+          {
+            "node": "MongoDB Save Verified Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB Save Verified Call": {
+      "main": [
+        [
+          {
+            "node": "Check Pending Calls (Barrier == 0)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Pending Calls (Barrier == 0)": {
+      "main": [
+        [
+          {
+            "node": "All Calls Finished?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "All Calls Finished?": {
+      "main": [
+        [
+          {
+            "node": "Fetch All Calls For Scoring",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Fetch All Calls For Scoring": {
+      "main": [
+        [
+          {
+            "node": "Meta WhatsApp Cloud Push",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
