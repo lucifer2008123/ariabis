@@ -118,7 +118,7 @@ export async function triggerEmailFallback(vendor: any, campaign: any) {
     budgetTarget: campaign.request.budget_target,
     currency: campaign.request.currency || "INR",
     location: campaign.request.location || "Bangalore, India",
-    userName: campaign.user_name || "Allen",
+    userName: campaign.user_name || "Buyer",
     campaignId: campaign.campaign_id,
   });
 

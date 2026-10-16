@@ -12,7 +12,7 @@ const CreateCampaignSchema = z.object({
   user_phone: z.string().optional().default("+919876543210"),
   user_telegram: z.string().optional().default("@telegram_user"),
   telegram_chat_id: z.string().optional(),
-  user_name: z.string().default("Allen"),
+  user_name: z.string().default("Buyer"),
 });
 
 export async function POST(req: NextRequest) {

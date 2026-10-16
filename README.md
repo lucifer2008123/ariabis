@@ -46,7 +46,7 @@ The Negotiator is an end-to-end autonomous Voice AI system that procures product
 ## 3. Directory Structure
 
 ```
-c:\Users\ALLEN\OneDrive\negotiator\
+haggle-os-negotiator/
 ├── package.json
 ├── tsconfig.json
 ├── next.config.mjs
@@ -139,7 +139,7 @@ Expected output: `11 Passed, 0 Failed` validating all scoring dimensions, edge c
 ```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) in your browser:
+Open [http://localhost:3000](http://localhost:3000) (or production [https://haggleos.xyz](https://haggleos.xyz)) in your browser:
 - **Intake Form**: `/` (with quick-fill demo button or voice dictation)
 - **Live Deal Room Demo**: `/c/CMP-2026-8841`
 

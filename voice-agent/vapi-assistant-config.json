@@ -40,7 +40,7 @@
           }
         },
         "server": {
-          "url": "https://hooks.yourbrand.xyz/api/v1/live-leverage",
+          "url": "https://haggleos.xyz/api/v1/live-leverage",
           "timeoutSeconds": 3
         }
       },
@@ -63,7 +63,7 @@
           }
         },
         "server": {
-          "url": "https://hooks.yourbrand.xyz/api/v1/live-leverage",
+          "url": "https://haggleos.xyz/api/v1/live-leverage",
           "timeoutSeconds": 3
         }
       }

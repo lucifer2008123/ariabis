@@ -33,7 +33,7 @@ export function IntakeForm() {
   const [location, setLocation] = useState("Bangalore, India");
   const [telegramChatId, setTelegramChatId] = useState("");
   const [userPhone, setUserPhone] = useState("+919876543210");
-  const [userName, setUserName] = useState("Allen");
+  const [userName, setUserName] = useState("Buyer");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -100,7 +100,7 @@ export function IntakeForm() {
     setBudgetMax(215000);
     setLocation("Bangalore, India");
     setUserPhone("+919876543210");
-    setUserName("Allen");
+    setUserName("Buyer");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
